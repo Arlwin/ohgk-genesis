@@ -47,3 +47,12 @@
         - Create / Update / Delete my Projects.
         - Create / Update / Delete Project Languages.
         - Create / Update / Delete Project Type.
+
+## Version 2
+- As Anyone
+    - Can Sign Up
+    - Can Log in
+- As User
+    - Create / Update / Delete own Projects.
+- As Admin
+    - Create / Update / Delete Users.
