@@ -79,16 +79,13 @@ public class DdbProjectServiceImplTest {
             .partitionValue(expectedProject.getId())
             .build();
 
-        GetItemEnhancedRequest request = GetItemEnhancedRequest.builder()
-            .key(key)
-            .build();
-
         when(systemConfig.getSystemName()).thenReturn(SYSTEM_NAME);
         when(ddbClient.table(
             String.format("%s-projects-table", SYSTEM_NAME), 
             PROJECT_TABLE_SCHEMA
         )).thenReturn(ddbTable);
-        when(ddbTable.getItem(request)).thenReturn(expectedProject);
+        when(ddbTable.getItem(key)).thenReturn(expectedProject);
+        when(ddbTable.deleteItem(key)).thenReturn(expectedProject);
 
         this.projectService = new DdbProjectServiceImpl(
             systemConfig, 
@@ -181,7 +178,6 @@ public class DdbProjectServiceImplTest {
         var exception = assertThrows(InvalidProjectException.class, () -> projectService.updateProject(input));
         assertEquals("Field id should not be null", exception.getMessage());
     }
-
     
     @Test
     public void updateProject_InvalidProject_ThrowInvalidProjectException() throws InvalidProjectException {
@@ -193,5 +189,29 @@ public class DdbProjectServiceImplTest {
         // Assert
         var exception = assertThrows(InvalidProjectException.class, () -> projectService.updateProject(input));
         assertTrue(exception.getViolations().contains("Name cannot be empty"));
+    }
+
+    @Test
+    public void deleteProject_ValidId_ReturnProject() throws InvalidProjectException {
+
+        // Input
+        String testId = expectedProject.getId();
+
+        // Invoke
+        ProjectDto result = this.projectService.deleteProjectById(testId);
+
+        // Assert
+        assertEquals(ProjectDto.fromEntity(expectedProject), result);
+    }
+
+    @Test
+    public void deleteProject_InvalidId_ThrowInvalidProjectException() throws InvalidProjectException {
+
+        // Input
+        String testId = "non-existent-id";
+
+        // Assert
+        var exception = assertThrows(InvalidProjectException.class, () -> projectService.deleteProjectById(testId));
+        assertEquals("Project with id non-existent-id does not exist", exception.getMessage());
     }
 }
