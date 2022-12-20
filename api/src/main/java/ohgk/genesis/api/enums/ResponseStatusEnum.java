@@ -1,6 +1,6 @@
 package ohgk.genesis.api.enums;
 
-public enum ResponseStatus {
+public enum ResponseStatusEnum {
     
     SUCCESS("success"),
     FAILED("failed"),
@@ -8,7 +8,7 @@ public enum ResponseStatus {
 
     private final String value;
 
-    private ResponseStatus(String value){
+    private ResponseStatusEnum(String value){
         this.value = value;
     }
 

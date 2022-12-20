@@ -45,8 +45,6 @@
 - As me (Admin)
     - Log in
         - Create / Update / Delete my Projects.
-        - Create / Update / Delete Project Languages.
-        - Create / Update / Delete Project Type.
 
 ## Version 2
 - As Anyone

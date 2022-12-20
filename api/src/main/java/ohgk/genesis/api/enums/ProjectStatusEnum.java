@@ -1,6 +1,6 @@
 package ohgk.genesis.api.enums;
 
-public enum ProjectStatus {
+public enum ProjectStatusEnum {
     
     TODO,
     IN_PROGRESS,

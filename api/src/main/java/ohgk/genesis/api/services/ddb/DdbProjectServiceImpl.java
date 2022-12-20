@@ -1,13 +1,14 @@
 package ohgk.genesis.api.services.ddb;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.config.SystemConfig;
 import ohgk.genesis.api.entities.Project;
@@ -47,24 +48,7 @@ public class DdbProjectServiceImpl implements ProjectService {
         );
     }
 
-    @Override
-    public ProjectDto getProjectById(String id) {
-
-        Key key = Key.builder()
-            .partitionValue(id)
-            .build();
-
-        var project = this.ddbTable.getItem(
-            GetItemEnhancedRequest.builder()
-                .key(key)
-                .build()
-        );
-
-        if (project == null) return null;
-
-        return ProjectDto.fromEntity(project);
-    }
-
+    
     @Override
     public ProjectDto createProject(ProjectDto project) throws InvalidProjectException {
 
@@ -81,5 +65,63 @@ public class DdbProjectServiceImpl implements ProjectService {
         this.ddbTable.putItem(project.toEntity());
 
         return project;
+    }
+
+    @Override
+    public ProjectDto getProjectById(String id) {
+
+        Key key = Key.builder()
+            .partitionValue(id)
+            .build();
+
+        var project = this.ddbTable.getItem(key);
+
+        if (project == null) return null;
+
+        return ProjectDto.fromEntity(project);
+    }
+
+    @Override
+    public List<ProjectDto> getProjects() {
+
+        List<ProjectDto> projects = this.ddbTable.scan().items().stream()
+            .map(
+                (item) -> {
+                    return ProjectDto.fromEntity(item);
+                }
+            ).collect(Collectors.toList());
+
+        return projects;
+    }
+
+    @Override
+    public ProjectDto updateProject(ProjectDto project) throws InvalidProjectException {
+
+        if (project.getId() == null) throw InvalidProjectException.fieldValueIsNull("id");
+
+        var violations = validator.validate(project);
+
+        if (violations.size() != 0) {
+
+            throw InvalidProjectException.invalidProjectDto(violations);
+        }
+
+        this.ddbTable.putItem(project.toEntity());
+
+        return project;
+    }
+
+    @Override
+    public ProjectDto deleteProjectById(String id) throws InvalidProjectException {
+
+        Key key = Key.builder()
+            .partitionValue(id)
+            .build();
+
+        var result = this.ddbTable.deleteItem(key);
+
+        if (result == null) throw InvalidProjectException.projectDoesNotExist(id);
+
+        return ProjectDto.fromEntity(result);
     }
 }

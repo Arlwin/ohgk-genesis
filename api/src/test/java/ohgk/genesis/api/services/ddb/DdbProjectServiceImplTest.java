@@ -25,9 +25,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.config.SystemConfig;
 import ohgk.genesis.api.entities.Project;
-import ohgk.genesis.api.entities.ProjectLanguage;
-import ohgk.genesis.api.entities.ProjectType;
-import ohgk.genesis.api.enums.ProjectStatus;
+import ohgk.genesis.api.enums.ProjectStatusEnum;
+import ohgk.genesis.api.enums.ProjectTypeEnum;
 import ohgk.genesis.api.exceptions.project.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
 import ohgk.genesis.api.services.ProjectService;
@@ -65,19 +64,9 @@ public class DdbProjectServiceImplTest {
             .id("test-id")
             .name("test-name")
             .description("test description")
-            .languages(
-                Arrays.asList(
-                    ProjectLanguage.builder()
-                        .id("JAVA")
-                        .build()
-                )
-            )
-            .type(
-                ProjectType.builder()
-                    .id("WEB_APP")
-                    .build()
-            )
-            .status(ProjectStatus.TODO)
+            .languages(Arrays.asList("java"))
+            .type(ProjectTypeEnum.WEB_APP)
+            .status(ProjectStatusEnum.TODO)
             .url("https://test-url.com")
             .build();
     }
@@ -137,7 +126,7 @@ public class DdbProjectServiceImplTest {
     }
 
     @Test
-    public void createProject_ValidProject_ReturnProjectId() throws InvalidProjectException {
+    public void createProject_ValidProject_ReturnProjectWithId() throws InvalidProjectException {
 
         // Input
         ProjectDto input = ProjectDto.fromEntity(expectedProject);
@@ -160,6 +149,49 @@ public class DdbProjectServiceImplTest {
 
         // Assert
         var exception = assertThrows(InvalidProjectException.class, () -> projectService.createProject(input));
+        assertTrue(exception.getViolations().contains("Name cannot be empty"));
+    }
+
+    @Test
+    public void updateProject_ValidProject_ReturnUpdatedProject() throws InvalidProjectException {
+
+        // Input
+        String newName = "test-new-name";
+
+        ProjectDto input = ProjectDto.fromEntity(expectedProject);
+        input.setName(newName);
+
+        // Invoke
+        ProjectDto result = projectService.updateProject(input);
+
+        assertEquals(newName, result.getName());
+    }
+
+    @Test
+    public void updateProject_ProjectNoId_ThrowInvalidProjectException() throws InvalidProjectException {
+
+        // Input
+        String newName = "test-new-name";
+
+        ProjectDto input = ProjectDto.fromEntity(expectedProject);
+        input.setName(newName);
+        input.setId(null);
+
+        // Assert
+        var exception = assertThrows(InvalidProjectException.class, () -> projectService.updateProject(input));
+        assertEquals("Field id should not be null", exception.getMessage());
+    }
+
+    
+    @Test
+    public void updateProject_InvalidProject_ThrowInvalidProjectException() throws InvalidProjectException {
+
+        // Input
+        ProjectDto input = ProjectDto.fromEntity(expectedProject);
+        input.setName(null);
+
+        // Assert
+        var exception = assertThrows(InvalidProjectException.class, () -> projectService.updateProject(input));
         assertTrue(exception.getViolations().contains("Name cannot be empty"));
     }
 }
