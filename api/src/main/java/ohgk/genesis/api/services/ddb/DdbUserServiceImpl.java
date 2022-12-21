@@ -57,6 +57,19 @@ public class DdbUserServiceImpl implements UserService {
         );
     }
 
+    // Private methods
+    private User getUserEntityByUsername(String username) {
+
+        Key key = Key.builder()
+        .partitionValue(username)
+        .build();
+
+        var user = this.ddbTable.getItem(key);
+
+        return user;
+    }
+
+    // Public methods
     @Override
     public UserDto createUser(UserDto user, boolean signUp) throws InvalidUserException {
         
@@ -68,7 +81,7 @@ public class DdbUserServiceImpl implements UserService {
         }
 
         // Check if User exists
-        var existingUser = this.getUserByUsername(user.getUsername());
+        var existingUser = this.getUserEntityByUsername(user.getUsername());
 
         if (existingUser != null) throw InvalidUserException.userAlreadyExists(user.getUsername());
 
@@ -102,11 +115,7 @@ public class DdbUserServiceImpl implements UserService {
     @Override
     public UserDto getUserByUsername(String username) throws InvalidUserException {
         
-        Key key = Key.builder()
-            .partitionValue(username)
-            .build();
-
-        var user = this.ddbTable.getItem(key);
+        User user = this.getUserEntityByUsername(username);
 
         if (user == null) throw InvalidUserException.userDoesNotExist(username);
 
@@ -124,7 +133,7 @@ public class DdbUserServiceImpl implements UserService {
         }
 
         // User must exist
-        if (getUserByUsername(user.getUsername()) == null) throw InvalidUserException.userDoesNotExist(user.getUsername());
+        if (this.getUserEntityByUsername(user.getUsername()) == null) throw InvalidUserException.userDoesNotExist(user.getUsername());
 
         // Hash the password
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
