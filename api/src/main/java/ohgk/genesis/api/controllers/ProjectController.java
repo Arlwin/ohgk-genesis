@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.enums.ResponseStatusEnum;
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
 import ohgk.genesis.api.models.http.BaseHttpResponse;
 import ohgk.genesis.api.services.ProjectService;
@@ -89,21 +89,16 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<ObjectNode> getAll(){
+    public ResponseEntity<BaseHttpResponse> getAll(){
         
-        ObjectNode baseResponse;
-
         List<ProjectDto> projects = this.projectService.getProjects();
 
-        baseResponse = (ObjectNode) this.objectMapper.valueToTree(
-            BaseHttpResponse.builder()
+        BaseHttpResponse baseResponse = BaseHttpResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .status(ResponseStatusEnum.SUCCESS.getValue())
                 .message("Successfully got project list.")
-                .build()
-        );
-
-        baseResponse.set("data", this.objectMapper.valueToTree(projects));
+                .data(this.objectMapper.valueToTree(projects))
+                .build();
 
         return ResponseEntity.ok(baseResponse);
     }   
@@ -111,11 +106,9 @@ public class ProjectController {
     @PutMapping
     public ResponseEntity<BaseHttpResponse> update(@RequestBody ProjectDto project) throws InvalidProjectException {
         
-        BaseHttpResponse response;
-        
         ProjectDto projectResult = this.projectService.updateProject(project);
         
-        response = BaseHttpResponse.builder()
+        BaseHttpResponse response = BaseHttpResponse.builder()
             .statusCode(HttpStatus.OK.value())
             .status(ResponseStatusEnum.SUCCESS.getValue())
             .message("Project successfully updated.")

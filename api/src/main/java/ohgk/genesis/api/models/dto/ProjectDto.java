@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.entities.Project;
 import ohgk.genesis.api.enums.ProjectStatusEnum;
 import ohgk.genesis.api.enums.ProjectTypeEnum;
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
 
 @Slf4j
 @Data

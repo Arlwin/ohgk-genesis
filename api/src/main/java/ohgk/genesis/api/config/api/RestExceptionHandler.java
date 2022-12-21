@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.enums.ResponseStatusEnum;
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidUserException;
 import ohgk.genesis.api.models.http.ValidationErrorHttpResponse;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ResponseEntity<Object> handleExceptions(InvalidProjectException ex){
+    protected ResponseEntity<Object> handleProjectExceptions(InvalidProjectException ex){
 
         var response = ValidationErrorHttpResponse.builder()
             .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -45,26 +46,17 @@ public class RestExceptionHandler {
         return ResponseEntity.ok(response);
     }
 
-    // // Validation
-    // @ExceptionHandler
-    // @ResponseStatus(HttpStatus.BAD_REQUEST)
-    // private ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException ex) {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleUserExceptions(InvalidUserException ex){
 
-    //     var errors = ex.getAllErrors();
+        var response = ValidationErrorHttpResponse.builder()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .status(ResponseStatusEnum.FAILED.getValue())
+            .message(ex.getMessage())
+            .violations(ex.getViolations() == null ? null : new ArrayList<>(ex.getViolations()))
+            .build();
 
-    //     var response = ValidationErrorHttpResponse.builder()
-    //         .statusCode(HttpStatus.BAD_REQUEST.value())
-    //         .status(ResponseStatusEnum.FAILED.getValue())
-    //         .message(VALIDATION_ERROR_MESSAGE)
-    //         .violations(
-    //             errors.stream().map(
-    //             (error) -> {
-    //                 return error.getDefaultMessage();
-    //             })
-    //             .collect(Collectors.toList())
-    //         )
-    //         .build();
-
-    //     return ResponseEntity.ok(response);
-    // }
+        return ResponseEntity.ok(response);
+    }
 }

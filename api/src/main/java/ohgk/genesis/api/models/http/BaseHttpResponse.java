@@ -2,6 +2,7 @@ package ohgk.genesis.api.models.http;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lombok.AllArgsConstructor;
@@ -20,5 +21,5 @@ public class BaseHttpResponse {
     private int statusCode;
     private String status;
     private String message;
-    private ObjectNode data;
+    private JsonNode data;
 }

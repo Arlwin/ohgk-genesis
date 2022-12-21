@@ -1,4 +1,4 @@
-package ohgk.genesis.api.exceptions.project;
+package ohgk.genesis.api.exceptions;
 
 import java.util.List;
 import java.util.Set;

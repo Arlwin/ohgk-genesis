@@ -2,7 +2,7 @@ package ohgk.genesis.api.services;
 
 import java.util.List;
 
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
 
 public interface ProjectService {

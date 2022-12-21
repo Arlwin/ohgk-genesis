@@ -30,9 +30,9 @@
 </table>
 
 ## RoadMap
-- [ ] Create Wireframe
-- [ ] Define Data / Create Datastore
-- [ ] Create Backend
+- [x] Create Wireframe
+- [x] Define Data / Create Datastore
+- [x] Create Backend
 - [ ] Create Frontend
 - [ ] Create Infrastructure
 - [ ] Deploy to Infrastructure

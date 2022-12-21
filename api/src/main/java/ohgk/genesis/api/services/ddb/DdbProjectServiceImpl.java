@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.config.SystemConfig;
 import ohgk.genesis.api.entities.Project;
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
 import ohgk.genesis.api.services.ProjectService;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -32,7 +32,7 @@ public class DdbProjectServiceImpl implements ProjectService {
     public DdbProjectServiceImpl(
         SystemConfig config,
         DynamoDbEnhancedClient dynamoDbEnhancedClient,
-        BeanTableSchema<Project> getProjectTableSchema,
+        BeanTableSchema<Project> projectTableSchema,
         Validator validator
     ){
         this.validator = validator;
@@ -44,7 +44,7 @@ public class DdbProjectServiceImpl implements ProjectService {
 
         this.ddbTable = dynamoDbEnhancedClient.table(
             tableName, 
-            getProjectTableSchema
+            projectTableSchema
         );
     }
 
@@ -105,6 +105,8 @@ public class DdbProjectServiceImpl implements ProjectService {
 
             throw InvalidProjectException.invalidProjectDto(violations);
         }
+
+        if (this.getProjectById(project.getId()) == null) throw InvalidProjectException.projectDoesNotExist(project.getId());
 
         this.ddbTable.putItem(project.toEntity());
 

@@ -27,7 +27,7 @@ import ohgk.genesis.api.config.SystemConfig;
 import ohgk.genesis.api.entities.Project;
 import ohgk.genesis.api.enums.ProjectStatusEnum;
 import ohgk.genesis.api.enums.ProjectTypeEnum;
-import ohgk.genesis.api.exceptions.project.InvalidProjectException;
+import ohgk.genesis.api.exceptions.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
 import ohgk.genesis.api.services.ProjectService;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
