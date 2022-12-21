@@ -12,6 +12,7 @@ public interface ProjectService {
 
     // Read
     public List<ProjectDto> getProjects();
+    public List<ProjectDto> getProjectsByUser(String user);
     public ProjectDto getProjectById(String id);
 
     // Update

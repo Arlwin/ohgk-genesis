@@ -19,11 +19,22 @@ public class SecurityConfig {
         http
         .csrf().disable()
         .authorizeRequests()
-            .antMatchers("/**") // ! TEMP
-            // .permitAll()
-            .permitAll()
-        .anyRequest()
-            .hasRole("USER");
+            // Public
+            .antMatchers(HttpMethod.GET, "/api/projects/**")
+                .permitAll()
+            .antMatchers(
+                "/api/users/signUp",
+                "api/users/login"
+            )
+                .permitAll()
+            // For Admin Only
+            .antMatchers(
+                "/api/projects/**",
+                "/api/users/**"
+            )
+                .hasRole("ADMIN")
+        .and()
+        .httpBasic();
         
         return http.build();
     }

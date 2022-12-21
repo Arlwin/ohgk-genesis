@@ -1,5 +1,6 @@
 package ohgk.genesis.api.services.ddb;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +21,8 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.BeanTableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
+import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
 
 @Slf4j
 @Service("ddbProjectService")
@@ -90,6 +93,38 @@ public class DdbProjectServiceImpl implements ProjectService {
                     return ProjectDto.fromEntity(item);
                 }
             ).collect(Collectors.toList());
+
+        return projects;
+    }
+
+    @Override
+    public List<ProjectDto> getProjectsByUser(String user) {
+
+        List<ProjectDto> projects = new ArrayList<>();
+
+        var userIndexTable = this.ddbTable.index(Project.USER_INDEX);
+
+        var query = QueryEnhancedRequest.builder()
+        .queryConditional(
+            QueryConditional
+                .keyEqualTo(
+                    Key.builder()
+                        .partitionValue(user)
+                        .build()
+                )
+        )
+        .build();
+
+        userIndexTable.query(query)
+            .stream()
+            .forEach(
+                (page) -> {
+                    page.items().forEach(
+                        (project) ->
+                        projects.add(ProjectDto.fromEntity(project))
+                    );
+                }
+            );
 
         return projects;
     }

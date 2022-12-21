@@ -1,9 +1,13 @@
 package ohgk.genesis.api.models.dto;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -15,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Builder.Default;
 import ohgk.genesis.api.entities.User;
 import ohgk.genesis.api.enums.UserRoleEnum;
+import ohgk.genesis.api.models.security.UserDetailsImpl;
 
 @JsonInclude(value = Include.NON_NULL)
 @Data
@@ -60,6 +65,14 @@ public class UserDto {
             .lastName(this.lastName)
             .roles(this.roles)
             .build();
+    }
 
+    public UserDetails toUserDetails() {
+
+        return UserDetailsImpl.builder()
+            .username(this.username)
+            .password(this.password)
+            .roles(this.roles)
+            .build();
     }
 }

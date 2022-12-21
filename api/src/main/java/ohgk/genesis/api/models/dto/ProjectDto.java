@@ -59,6 +59,7 @@ public class ProjectDto {
     private String status;
 
     private String url;
+    private String owner;
 
     public static ProjectDto fromEntity(Project entity){
 
@@ -69,7 +70,8 @@ public class ProjectDto {
             entity.getLanguages(),
             entity.getType().toString(),
             entity.getStatus().toString(),
-            entity.getUrl()
+            entity.getUrl(),
+            entity.getUser()
         );
     }
 
@@ -103,6 +105,7 @@ public class ProjectDto {
             .type(ProjectTypeEnum.valueOf(this.type))
             .status(ProjectStatusEnum.valueOf(this.status))
             .url(this.url)
+            .user(this.owner)
             .build();
 
     }

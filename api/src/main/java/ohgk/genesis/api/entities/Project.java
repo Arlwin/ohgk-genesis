@@ -10,6 +10,7 @@ import ohgk.genesis.api.enums.ProjectStatusEnum;
 import ohgk.genesis.api.enums.ProjectTypeEnum;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSecondaryPartitionKey;
 
 @DynamoDbBean // AWS DDB
 @Data
@@ -19,7 +20,8 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 public class Project {
 
     public static final String TABLE_NAME = "projects";
-    
+    public static final String USER_INDEX = "user-index";
+
     private String id;
 
     private String name;
@@ -30,9 +32,16 @@ public class Project {
     private ProjectStatusEnum status;
     private String url;
 
+    private String user;
+
     @DynamoDbPartitionKey // AWS DDB
     public String getId(){
         return this.id;
+    }
+
+    @DynamoDbSecondaryPartitionKey(indexNames = { USER_INDEX }) 
+    public String getUser() {
+        return this.user;
     }
 }
  

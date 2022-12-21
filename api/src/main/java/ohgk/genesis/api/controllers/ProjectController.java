@@ -1,11 +1,13 @@
 package ohgk.genesis.api.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,10 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.enums.ResponseStatusEnum;
@@ -44,9 +47,12 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<BaseHttpResponse> create(@RequestBody ProjectDto project) throws InvalidProjectException {
+    public ResponseEntity<BaseHttpResponse> create(@RequestBody ProjectDto project, Authentication auth) throws InvalidProjectException {
 
         BaseHttpResponse response;
+
+        var user = (UserDetails) auth.getPrincipal();
+        project.setOwner(user.getUsername());
         
         ProjectDto projectResult = this.projectService.createProject(project);
         
@@ -89,15 +95,20 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<BaseHttpResponse> getAll(){
-        
-        List<ProjectDto> projects = this.projectService.getProjects();
+    public ResponseEntity<BaseHttpResponse> getAll(@RequestParam Optional<String> user) {
 
+        List<ProjectDto> projects;
+
+        if (user.isPresent() && !user.get().isEmpty()) 
+            projects = this.projectService.getProjectsByUser(user.get());
+        else 
+            projects = this.projectService.getProjects();
+            
         BaseHttpResponse baseResponse = BaseHttpResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .status(ResponseStatusEnum.SUCCESS.getValue())
                 .message("Successfully got project list.")
-                .data(this.objectMapper.valueToTree(projects))
+                .data(projects.isEmpty() ? new ArrayNode(null) : this.objectMapper.valueToTree(projects))
                 .build();
 
         return ResponseEntity.ok(baseResponse);

@@ -20,14 +20,12 @@ import ohgk.genesis.api.models.http.ValidationErrorHttpResponse;
 @Slf4j
 @ControllerAdvice
 public class RestExceptionHandler {
-
-    private static final String VALIDATION_ERROR_MESSAGE = "Validation error"; 
-
+    
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ResponseEntity<Object> handleExceptions(Exception e){
 
-        var ex = (IllegalArgumentException) e;
+        log.error(e.getMessage());
 
         return ResponseEntity.ok("puso");
     }
