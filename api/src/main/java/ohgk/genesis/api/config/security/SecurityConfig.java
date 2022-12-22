@@ -34,7 +34,8 @@ public class SecurityConfig {
             )
                 .hasRole("ADMIN")
         .and()
-        .httpBasic();
+        .formLogin()
+            .loginProcessingUrl("/api/users/login");
         
         return http.build();
     }

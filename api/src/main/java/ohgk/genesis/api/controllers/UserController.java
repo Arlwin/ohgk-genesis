@@ -55,12 +55,6 @@ public class UserController {
         );
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<BaseHttpResponse> login(@RequestBody UserDto user) throws InvalidUserException {
-
-        return null;
-    }
-
     // The Usual CRUD. For Admin only
     @PostMapping
     public ResponseEntity<BaseHttpResponse> create(@RequestBody UserDto user) throws InvalidUserException {

@@ -114,6 +114,8 @@ public class DdbUserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByUsername(String username) throws InvalidUserException {
+
+        if (username == null || username.isEmpty()) throw InvalidUserException.usernameShouldNotBeBlank();
         
         User user = this.getUserEntityByUsername(username);
 

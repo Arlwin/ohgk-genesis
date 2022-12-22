@@ -11,6 +11,7 @@ public class InvalidUserException extends Exception {
 
     private static final String INVALID_USER_DTO_MESSAGE = "User is invalid with multiple violations";
     private static final String USER_NOT_EXIST = "User with username %s does not exist";
+    private static final String USERNAME_IS_BLANK = "Username should not be empty";
     private static final String USER_ALREADY_EXIST = "User with username %s already exists";
 
     private Set<String> violations;
@@ -52,5 +53,10 @@ public class InvalidUserException extends Exception {
     public static InvalidUserException userAlreadyExists(String username) {
 
         return new InvalidUserException(String.format(USER_ALREADY_EXIST, username));
+    }
+    
+    public static InvalidUserException usernameShouldNotBeBlank() {
+
+        return new InvalidUserException(String.format(USERNAME_IS_BLANK));
     }
 }
