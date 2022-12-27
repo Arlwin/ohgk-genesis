@@ -6,10 +6,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.exceptions.InvalidUserException;
 import ohgk.genesis.api.models.dto.UserDto;
 import ohgk.genesis.api.services.UserService;
 
+@Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -25,7 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         UserDto user;
-        
+
         try {
 
             user = this.userService.getUserByUsername(username);

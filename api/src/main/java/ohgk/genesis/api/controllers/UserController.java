@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,14 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.enums.ResponseStatusEnum;
 import ohgk.genesis.api.exceptions.InvalidUserException;
 import ohgk.genesis.api.models.dto.UserDto;
 import ohgk.genesis.api.models.http.BaseHttpResponse;
+import ohgk.genesis.api.models.security.UserDetailsImpl;
 import ohgk.genesis.api.services.UserService;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -51,6 +56,21 @@ public class UserController {
                 .status(ResponseStatusEnum.SUCCESS.name())
                 .message("User successfully created.")
                 .data(this.objectMapper.valueToTree(result))
+                .build()
+        );
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<BaseHttpResponse> login(Authentication auth) throws InvalidUserException {
+
+        var user = this.userService.getUserByUsername(((UserDetailsImpl) auth.getPrincipal()).getUsername());
+
+        return ResponseEntity.ok(
+            BaseHttpResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .status(ResponseStatusEnum.SUCCESS.name())
+                .message("User logged in successfully.")
+                .data(objectMapper.valueToTree(user))
                 .build()
         );
     }
