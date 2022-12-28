@@ -68,7 +68,7 @@ public class ProjectDto {
             entity.getName(),
             entity.getDescription(),
             entity.getLanguages(),
-            entity.getType().toString(),
+            entity.getType().getLabel(),
             entity.getStatus().toString(),
             entity.getUrl(),
             entity.getUser()

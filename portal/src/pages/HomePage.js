@@ -30,8 +30,6 @@ export class HomePage extends React.Component {
 
     fetchProjects() {
 
-        console.log('rdas')
-
         httpService.get('/projects')
             .then(
                 (response) => {
@@ -57,7 +55,10 @@ export class HomePage extends React.Component {
         for (var i in projects) {
             
             projectsEl.push(
-                <ProjectCard project = {projects[i]} />
+                <ProjectCard
+                    key={projects[i].id}
+                    project = {projects[i]} 
+                />
             )
         }
 
@@ -72,11 +73,15 @@ export class HomePage extends React.Component {
                     handleClose = { this.closeLogin }
                 />
 
-                <h1>
-                    TEST HOME
-                </h1>
-
-                { this.buildProjectsElement() }
+                <Box
+                    sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                    }}
+                >
+                    { this.buildProjectsElement() }
+                </Box>
             </Box>
 
         )
