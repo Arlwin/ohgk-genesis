@@ -1,7 +1,11 @@
 package ohgk.genesis.api.controllers;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +26,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import lombok.extern.slf4j.Slf4j;
+import ohgk.genesis.api.enums.ProjectStatusEnum;
+import ohgk.genesis.api.enums.ProjectTypeEnum;
 import ohgk.genesis.api.enums.ResponseStatusEnum;
 import ohgk.genesis.api.exceptions.InvalidProjectException;
 import ohgk.genesis.api.models.dto.ProjectDto;
@@ -44,6 +50,39 @@ public class ProjectController {
 
         this.projectService = projectService;
         this.objectMapper = objectMapper;
+    }
+
+    // Utilities
+    @GetMapping("/types")
+    public ResponseEntity<BaseHttpResponse> getProjectTypes() {
+
+        Map<String, String> types = Arrays.stream(ProjectTypeEnum.values())
+            .collect(Collectors.toMap((type) -> type.name(), (type) -> type.getLabel()));
+
+        return ResponseEntity.ok(
+            BaseHttpResponse.builder()
+            .statusCode(HttpStatus.OK.value())
+            .status(ResponseStatusEnum.SUCCESS.getValue())
+            .message("Project types successfully fetched.")
+            .data(objectMapper.valueToTree(types))
+            .build()
+        );
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<BaseHttpResponse> getProjectStatus() {
+
+        Map<String, String> status = Arrays.stream(ProjectStatusEnum.values())
+            .collect(Collectors.toMap((type) -> type.name(), (type) -> type.getLabel()));
+
+        return ResponseEntity.ok(
+            BaseHttpResponse.builder()
+            .statusCode(HttpStatus.OK.value())
+            .status(ResponseStatusEnum.SUCCESS.getValue())
+            .message("Project status successfully fetched.")
+            .data(objectMapper.valueToTree(status))
+            .build()
+        );
     }
 
     @PostMapping

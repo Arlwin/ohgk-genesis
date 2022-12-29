@@ -1,37 +1,30 @@
 import React from 'react'
 
+import { getStatusColor } from '../theme/utils';
+
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
+import Card from '@mui/material/Card';
+import IconButton from '@mui/material/IconButton';
 
+import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 export class ProjectCard extends React.Component {
 
+    empty;
     project;
 
     constructor(props) {
         super(props);
 
-        this.project = props.project;
-    }
-
-    getStatusColor() {
-
-        // ! Temporary. For prototype
-        /**
-         *     TODO,
-         *     IN_PROGRESS,
-         *     DONE,
-         */
-        switch(this.project.status) {
-
-            case 'TODO': return '#52B2CF';
-            case 'IN_PROGRESS': return '#FB4D3D';
-            case 'DONE': return '#59CD90';
-            default: return '#52B2CF';
-        }
+        this.empty = props.empty === undefined ? false : props.empty;
+        
+        if (!this.empty) this.project = props.project;
     }
 
     buildLanguagesEl() {
@@ -39,49 +32,76 @@ export class ProjectCard extends React.Component {
         const languages = this.project.languages;
         var languagesEl = [];
 
-        for (var i in languages) {
-            languagesEl.push(
-                <Chip 
-                    key={languages[i]}
-                    label={languages[i].toString().toUpperCase()} 
-                    color="primary" //! Change this in theme
-                    variant='outlined'
-                    size="small"
-                    sx={{
-                        mr: 1,
-                    }}
-                />
-            )
-        }
+        languages.forEach( 
+            (language) => {
+                languagesEl.push(
+                    <Chip 
+                        key={language}
+                        label={language.toUpperCase()} 
+                        // color="primary" //! Change this in theme
+                        variant='outlined'
+                        size="small"
+                        sx={{
+                            mr: 1,
+                            fontWeight: '600',
+                            color: 'secondary.main',
+                            borderColor: 'secondary.main'
+                        }}
+                    />
+                )
+            }
+        );
 
         return languagesEl;
     }
 
-    render() {
+    buildMainCard() {
         return (
-            <Box
+            <Card
                 sx={{
                     my: 2,
                     mx: 2.5,
                     p: 2,
                     width: '20%',
                     borderRadius: '10px',
-                    borderRight: '6px solid ' + this.getStatusColor(),
+                    borderRight: `6px solid ${getStatusColor(this.project.status)}`,
                     display: 'flex',
                     flexDirection: 'column',
-                    backgroundColor: '#EBEBEB', //! Change in themes
                 }}
-            >   
+            >
 
-                {/* Project Name */}
-                <Typography
-                    variant='h5'
+                <Box
                     sx={{
-                        fontWeight: '600'
+                        display: 'flex',
+                        justifyContent: 'space-between'
                     }}
                 >
-                    {this.project.name}
-                </Typography>
+                    {/* Project Name */}
+                    <Typography
+                        variant='h5'
+                        sx={{
+                            fontWeight: '600'
+                        }}
+                    >
+                        {this.project.name}
+                    </Typography>
+
+                    {/* Actions */}
+                    <Box 
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                        }}
+                    >
+                        <IconButton>
+                            <EditOutlinedIcon fontSize='small' sx={{ alignSelf: 'center'}}/>
+                        </IconButton>
+                        <IconButton>
+                            <DeleteOutlineIcon fontSize='small' />
+                        </IconButton>
+                    </Box>
+                </Box>
+                
 
                 <Box 
                     sx={{
@@ -167,8 +187,49 @@ export class ProjectCard extends React.Component {
                         height: '5px'
                     }}
                 />
-            </Box>
+
+            </Card>
+        )
+    }
+
+    buildEmptyCard() {
+
+        const color = 'rgb(0, 0, 0, .2)';
+
+        return (
+            <Card
+                sx={{
+                    my: 2,
+                    mx: 2.5,
+                    p: 2,
+                    width: '20%',
+                    height: '20vh',
+                    borderRadius: '10px',
+                    border: `2px dashed ${color}`, //? can we add to theme?
+                    backgroundColor: color,
+                    color: 'rgb(0, 0, 0, .4)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                }}
+                onClick={ this.props.onClick }
+            >
+                <AddIcon 
+                    sx={{
+                        fontSize: '60px',
+                        alignSelf: 'center',
+                    }} 
+                />
+            </Card>
         );
+    }
+
+    render() {
+
+        if (this.empty)
+            return this.buildEmptyCard();
+        else
+            return this.buildMainCard();
     }
 }
 
