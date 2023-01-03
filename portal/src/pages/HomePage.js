@@ -1,67 +1,61 @@
-import React from 'react'
+import { useState, useEffect } from 'react'
 
 import Box from '@mui/material/Box';
 
-import ProjectCard from '../components/ProjectCard';
 import NewProjectDialog from '../components/NewProjectDialog';
 
 import httpService from '../services/httpService';
+import Project from '../models/Project';
+import ProjectCard from '../components/ProjectCard';
+import ConfirmDialog from '../components/ConfirmDialog';
 
-export class HomePage extends React.Component {
+export default function HomePage() {
 
-    constructor(props) {
+    const [projects, setProjects] = useState([]);
+    const [deleteProjectDialog, setDeleteProjectDialog] = useState({
+        open: false,
+        message: '',
+        projectId: null,
+        action: 'Delete',
+    });
+    const [addProjectDialog, setAddProjectDialog] = useState(false);
 
-        super(props);
-        
-        this.state = {
-            projects: [],
-            addProjectDialog: false,
-            projectStatuses: [],
-            projectTypes: [],
-            projectStatusesMap: {},
-            projectTypesMap: {},
-        }
+    const [projectStatuses, setProjectStatuses] = useState([]);
+    useEffect(
+        () => {
 
-        this.createNewProject = this.createNewProject.bind(this);
-    }
+        httpService.get('/projects/status')
+            .then(
+                (response) => {
 
-    buildProjectsElement() {
+                    const data = response.data;
+                    const keys = Object.keys(data.data);
 
-        const projectsEl = []
-        const projects = this.state.projects;
+                    var statuses = [];
 
-        for (var i in projects) {
-            
-            projectsEl.push(
-                <ProjectCard
-                    key = {i}
-                    project = {projects[i]} 
-                    types = { this.state.projectTypesMap }
-                />
-            )
-        }
+                    for (var i in keys) {
 
-        return projectsEl;
-    }
+                        statuses.push(
+                            {
+                                name: keys[i],
+                                value: data.data[keys[i]]
+                            }
+                        );
+                    }
 
-    createNewProject(project) {
+                    setProjectStatuses(statuses);
+                } 
+            );
+        }, 
+        []
+    )
 
-        const projects = this.state.projects;
+    const [projectTypes, setProjectTypes] = useState([]);
+    const [projectTypesMap, setProjectTypesMap] = useState({});
+    useEffect(
+        () => {
 
-        // special case for type
-        project.type = this.state.projectTypesMap[project.type]
-
-        projects.push(project);
-
-        this.setState({
-            projects: projects,
-            addProjectDialog: false,
-        });
-    }
-
-    fetchProjectTypes() {
-
-        httpService.get('/projects/types')
+            httpService.get('/projects/types')
             .then(
                 (response) => {
 
@@ -80,75 +74,150 @@ export class HomePage extends React.Component {
                         )
                     }
 
-                    this.setState({
-                        projectTypes: types,
-                        projectTypesMap: data.data,
-                    });
+                    setProjectTypes(types);
+                    setProjectTypesMap(data.data);
                 } 
-            );
+            )
+        }, 
+        []
+    )
+    
+    const [editProjectDialog, setEditProjectDialog] = useState(false);
+    const [editProject, setEditProject] = useState(null);
+
+    const createProject = (project) => {
+        
+        const nProjects = [...projects, project];
+        setProjects(nProjects);
+        setAddProjectDialog(false);
+    };
+
+    const updateProject = (project) => {
+
+        const nProjects = projects.map((proj, i) => {
+
+            if (i === project.id) return project;
+            else return proj;
+        });
+
+        setProjects(nProjects);
+        setEditProjectDialog(false);
     }
 
-    fetchProjectStatuses() {
+    const handleUpdateProject = (index) => {
+        
+        let nProject = projects[index];
+        nProject.id = index;
 
-        httpService.get('/projects/status')
-            .then(
-                (response) => {
+        setEditProjectDialog(true);
+        setEditProject(nProject);
+    }
 
-                    const data = response.data;
-                    const keys = Object.keys(data.data);
+    const handleDeleteProject = (index) => {
 
-                    var statuses = [];
+        setDeleteProjectDialog(
+            (deleteProjectDialog) => ({
+                ...deleteProjectDialog,
+                open: true,
+                message: `Delete Project ${projects[index].name}`,
+                projectId: index,
+            })
+        );
+    }
+    
+    return (
+        <Box
+            sx={{
+                py: 2,
+                display: 'flex',
+                flexWrap: 'wrap',
+            }}
+        >
+            <NewProjectDialog
+                key = "newProjectDialog"
+                open = { addProjectDialog }
+                handleClose = { () => { setAddProjectDialog(false) } }
+                submitProject = { createProject }
+                statuses = { projectStatuses }
+                types = { projectTypes }
+            />
 
-                    for (var i in keys) {
+            <NewProjectDialog
+                key = "editProjectDialog"
+                open = { editProjectDialog }
+                handleClose = { () => { setEditProjectDialog(false) } }
+                submitProject = { updateProject }
+                statuses = { projectStatuses }
+                types = { projectTypes }
+                project = { editProject }
+                edit
+            />
 
-                        statuses.push(
-                            {
-                                name: keys[i],
-                                value: data.data[keys[i]]
-                            }
-                        )
+            <ConfirmDialog 
+                open = { deleteProjectDialog.open }
+                handleClose = { () => { setDeleteProjectDialog(deleteProjectDialog => ({...deleteProjectDialog, open: false })) }}
+                title = { deleteProjectDialog.message }
+                message = 'Are you sure you want to delete this project?'
+                action = { deleteProjectDialog.action }
+                confirm = { () => { 
+                    setProjects(projects => projects.filter((project, i) => i !== deleteProjectDialog.projectId)) 
+                    setDeleteProjectDialog(deleteProjectDialog => ({
+                        ...deleteProjectDialog,
+                        open: false,
+                        message: '',
+                        projectId: null,
+                    }))
+                } }
+            />
+
+            <ProjectCard 
+                empty
+                key = { -2 }
+                onClick={ () => { setAddProjectDialog(true) } }
+            />
+
+            <ProjectCard 
+                key = { -1 }
+                project = { createSampleProject() } 
+                types = { projectTypesMap }
+                disableButtons
+            />
+
+            { 
+                projects.map(
+                    (project, i) => {
+
+                        let nProject = {...project};
+
+                        nProject.type = projectTypesMap[project.type]; 
+
+                        return (
+                            <ProjectCard
+                                key = { i }
+                                project = { nProject } 
+                                types = { projectTypesMap }
+                                openEdit = { () => { handleUpdateProject(i) } }
+                                openDelete = { () => { handleDeleteProject(i) } }
+                            />
+                        );
                     }
-
-                    this.setState({
-                        projectStatuses: statuses,
-                        projectStatusesMap: data.data,
-                    });
-                } 
-            );
-    }
-
-    componentDidMount(){
-
-        this.fetchProjectTypes();
-        this.fetchProjectStatuses();
-    }
-
-    render() {
-        return (
-            <Box
-                sx={{
-                    py: 2,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                }}
-            >
-                <NewProjectDialog
-                    key = "newProjectDialog"
-                    open = { this.state.addProjectDialog }
-                    handleClose = { () => { this.setState({ addProjectDialog: false }) } }
-                    createProject = { this.createNewProject }
-                    statuses = { this.state.projectStatuses }
-                    types = { this.state.projectTypes }
-                />
-
-                <ProjectCard 
-                    empty
-                    onClick={ () => { this.setState({ addProjectDialog: true }) } }
-                />
-                { this.buildProjectsElement() }
-            </Box>
-        )
-    }
+                )
+            }
+        </Box>
+    )
 }
 
-export default HomePage
+function createSampleProject() {
+
+    let project = {
+        id: -1,
+        name: 'Sample Project',
+        description: 'This is a sample project. This is how a Project looks like here. You can add more by clicking the + button on the left.',
+        languages: ['JAVA', 'PYTHON'],
+        type: 'Web Application',
+        status: 'DONE',
+        url: 'https://sample-project.com',
+    }
+
+    return Project.fromObject(project);
+}

@@ -1,4 +1,6 @@
-import React  from 'react'
+import { useState, useEffect }  from 'react'
+
+import Project from '../models/Project'
 
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -16,331 +18,332 @@ import Chip from '@mui/material/Chip';
 
 import LinkIcon from '@mui/icons-material/Link';
 
-export class NewProjectDialog extends React.Component {
+export default function NewProjectDialog(props) {
 
-    initState = {
+    const initState = {
+        id: null,
         name: '',
         description: '',
-        language: '',
         languages: new Set(),
         url: '',
     }
 
-    constructor(props) {
-        super(props);
+    const [project, setProject] = useState(initState);
+    const [form, setForm] = useState({
+        language: '',
+        types: [],
+        statuses: []
+    });
 
-        this.state = this.initState;
+    // Type
+    useEffect(
+        () => {
 
-        this.handleInput = this.handleInput.bind(this);
-        this.handleStatusInput = this.handleStatusInput.bind(this);
-        this.createProject = this.createProject.bind(this);
-        this.handleLanguageAdd = this.handleLanguageAdd.bind(this);
-        this.handleLanguageRemove = this.handleLanguageRemove.bind(this);
-    }
+            if (props.types && props.types.length > 0) {
 
-    buildSelectType() {
+                setForm(form => ({
+                    ...form, 
+                    types: props.types,
+                }));
 
-        const types = this.props.types;
-        var typesEl = [];
+                setProject(project => ({
+                    ...project, 
+                    type: props.types[0].name,
+                }));
+            }
+        },
+        [props.types]
+    );
 
-        for (var i in types) {
+    // Status
+    useEffect(
+        () => {
 
-            typesEl.push(
-                <MenuItem key={i} value={types[i].name}>{ types[i].value }</MenuItem>
-            );
-        }
+            if (props.statuses && props.statuses.length > 0) {
 
-        return typesEl;
-    }
+                setForm(form => ({
+                    ...form, 
+                    statuses: props.statuses,
+                }));
 
-    buildToggleStatus() {
+                setProject(project => ({ 
+                    ...project,
+                    status: props.statuses[0].name,
+                }));
+            }
+        },
+        [props.statuses]
+    );
 
-        const statuses = this.props.statuses;
-        var statusEl = [];
+    // Existing Project
+    useEffect(
+        () => {
 
-        for (var i in statuses) {
+            if (props.edit) {
 
-            statusEl.push(
-                <ToggleButton key={i} value={statuses[i].name}>{ statuses[i].value }</ToggleButton>
-            );
-        }
+                if (props.project && props.project.id !== undefined) {
 
-        return statusEl;
-    }
+                    setProject(project => ({
+                        ...project,
+                        ...props.project
+                    }));
+                }
+            }
+        },
+        [props.project]
+    )
 
-    handleInput(event) {
+    const handleInput = (event) => {
         
         const target = event.target;
         const name = target.name;
         const value = target.value;
 
-        this.setState({
-            [name]: value
-        });
+        setProject(project => ({ ...project, [name]: value }));
     }
 
-    handleStatusInput(event) {
-        
-        const target = event.target;
-        const value = target.value;
+    const handleLanguageRemove = (language) => {
 
-        this.setState({
-            'status' : value
-        });
+        let languages = new Set([...project.languages]);
+
+        languages.delete(language.toUpperCase());
+
+        setProject(project => ({ ...project, languages: languages }));
     }
 
-    createProject() {
-
-        this.props.createProject(
-            {
-                name: this.state.name,
-                description: this.state.description,
-                languages: this.state.languages,
-                type: this.state.type,
-                status: this.state.status,
-                url: this.state.url,
-            }
-        );
-
-        this.setState(this.initState);
-        
-        this.setState({ //? Special case. Not updating set if it wasnt for this
-            languages: new Set()
-        });
-    }
-
-    handleLanguageAdd(event) {
+    const handleLanguageAdd = (event) => {
 
         if (event.key === 'Enter') {
 
-            let languages = this.state.languages;
+            let languages = new Set([...project.languages]);
 
-            languages.add(this.state.language.toString().trim().toUpperCase());
+            languages.add(form.language.toString().trim().toUpperCase());
 
-            this.setState({
-                languages: languages,
-                language: '',
-            });
+            setProject(project => ({ ...project, languages: languages}));
+            setForm(form => ({ ...form, language: ''}));
         }
     }
 
-    handleLanguageRemove(event, lang) {
+    const submit = () => {
 
-        let languages = this.state.languages;
-
-        languages.delete(lang.toUpperCase());
-
-        this.setState({
-            languages: languages,
-        });
-    }
-
-    buildLanguageChips() {
-
-        const languages = this.state.languages;
-        let chips = [];
-
-        languages.forEach(
-            (lang) => {
-                chips.push(
-                    <Chip
-                        key={lang}
-                        label={lang}
-                        onDelete={(event) => this.handleLanguageRemove(event, lang)}
-                        sx={{
-                            mr: 1,
-                            borderRadius: '10px'
-                        }}
-                    />
-                )
-            }
+        let projectObj = new Project (
+            project.id ?? null,
+            project.name,
+            project.description,
+            project.languages,
+            project.type,
+            project.status,
+            project.url
         );
 
-        return chips;
+        props.submitProject(projectObj);
+
+        if (!props.edit) {
+
+            setProject(project => ({
+                ...project,
+                ...initState,
+            }));
+
+            // this.setState({ //? Special case. Not updating set if it wasnt for this
+            //     languages: new Set()
+            // });
+        }
     }
 
-    componentDidUpdate(prevProps) {
+    const title = props.edit !== undefined
+        ? 'Update Project'
+        : 'Create Project';
 
-        if (prevProps.types !== this.props.types) {
+    const submitLabel = props.edit !== undefined
+        ? 'Update'
+        : 'Create';
 
-            this.setState({
-
-                type: this.props.types[0].name,
-            });
-        }
-
-        if (prevProps.statuses !== this.props.statuses) {
-
-            this.setState({
-
-                status: this.props.statuses[0].name,
-            });
-        }
-
-    }
-
-    render() {
-        return (
-            <Modal
-                open = {this.props.open}
-                onClose = {this.props.handleClose}
+    return (
+        <Modal
+            open = {props.open}
+            onClose = {props.handleClose}
+        >
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 600,
+                    bgcolor: 'background.paper',
+                    borderRadius: '5px',
+                    outline: 0,
+                    boxShadow: 12,
+                    px: 4,
+                    py: 3,
+                }}
             >
                 <Box
                     sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 600,
-                        bgcolor: 'background.paper',
-                        borderRadius: '5px',
-                        outline: 0,
-                        boxShadow: 12,
-                        px: 4,
-                        py: 3,
+                        pb: 4,
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
-                    <Box
+                    {/* Title */}
+                    <Typography 
+                        variant="h5"
                         sx={{
-                            pb: 4,
-                            display: 'flex',
-                            flexDirection: 'column'
+                            fontWeight: 600,
+                            alignSelf: 'center'
                         }}
                     >
-                        {/* Title */}
-                        <Typography 
-                            variant="h5"
-                            sx={{
-                                fontWeight: 600,
-                                alignSelf: 'center'
-                            }}
+                        { title }
+                    </Typography>
+
+                    <Box sx={{ height: '40px' }} />
+
+                    {/* Project Name */}
+                    <TextField
+                        required
+                        name='name'
+                        label="Project Name"
+                        value={ project.name }
+                        onChange={ handleInput }
+                    />
+
+                    <Box sx={{ height: '30px' }} />
+
+                    {/* Project Description */}
+                    <TextField
+                        required
+                        name='description'
+                        multiline
+                        label="Project Description"
+                        minRows={4}
+                        maxRows={6}
+                        value={ project.description }
+                        onChange={ handleInput }
+                    />
+
+                    <Box sx={{ height: '30px' }} />
+
+                    {/* Project Languages. Consider making a list for this and change to autocomplete*/}
+                    <TextField
+                        required
+                        name='language'
+                        label="Languages"
+                        value={ form.language }
+                        onChange={ (event) => { setForm(form => ({ ...form, language: event.target.value })) } }
+                        onKeyDown={ handleLanguageAdd }
+                        InputProps={{
+                            startAdornment: [...project.languages].map(
+                                    (language) => {
+                                        return (
+                                            <Chip
+                                                key={language}
+                                                label={language}
+                                                onDelete={() => handleLanguageRemove(language)}
+                                                sx={{
+                                                    mr: 1,
+                                                    borderRadius: '10px'
+                                                }}
+                                            />
+                                        )
+                                    }
+                            )
+                        }}
+                    />
+
+                    <Box sx={{ height: '30px' }} />
+
+                    {/* Type */}
+                    <FormControl>
+                        <InputLabel id='type-label'>Type</InputLabel>
+                        <Select
+                            required
+                            name='type'
+                            labelId='type-label'
+                            label="Type"
+                            value={ project.type }
+                            onChange={ handleInput }
                         >
-                            NEW PROJECT
-                        </Typography>
+                            { form.types.map(
+                                (type, i) => {
+                                    return (
+                                        <MenuItem key={i} value={type.name}>{ type.value }</MenuItem>
+                                    )
+                                }
+                            ) }
+                        </Select>
+                    </FormControl>
 
-                        <Box sx={{ height: '40px' }} />
-
-                        {/* Project Name */}
-                        <TextField
-                            required
-                            name='name'
-                            label="Project Name"
-                            value={ this.state.name }
-                            onChange={ this.handleInput }
-                        />
-
-                        <Box sx={{ height: '30px' }} />
-
-                        {/* Project Description */}
-                        <TextField
-                            required
-                            name='description'
-                            multiline
-                            label="Project Description"
-                            minRows={4}
-                            maxRows={6}
-                            value={ this.state.description }
-                            onChange={ this.handleInput }
-                        />
-
-                        <Box sx={{ height: '30px' }} />
-
-                        {/* Project Languages. Consider making a list for this and change to autocomplete*/}
-                        <TextField
-                            required
-                            name='language'
-                            label="Languages"
-                            value={ this.state.language }
-                            onChange={ this.handleInput }
-                            onKeyDown={ this.handleLanguageAdd }
-                            InputProps={{
-                                startAdornment: this.buildLanguageChips(),
-                            }}
-                        />
-
-                        <Box sx={{ height: '30px' }} />
-
-                        {/* Type */}
-                        <FormControl>
-                            <InputLabel id='type-label'>Type</InputLabel>
-                            <Select
-                                required
-                                name='type'
-                                labelId='type-label'
-                                label="Type"
-                                value={ this.state.type }
-                                onChange={ this.handleInput }
-                            >
-                                { this.buildSelectType() }
-                            </Select>
-                        </FormControl>
-
-                        <Box sx={{ height: '20px' }} />
-                        
-                        <Typography
-                            variant='overline'
-                            sx={{
-                                fontSize: '14px'
-                            }}
-                        >
-                            Status
-                        </Typography>
-                        <ToggleButtonGroup
-                            exclusive
-                            name='status'
-                            value={this.state.status}
-                            fullWidth
-                            onChange={ this.handleStatusInput }
-                        >
-                            { this.buildToggleStatus() }
-                        </ToggleButtonGroup>
-
-                        <Box sx={{ height: '30px' }} />
-
-                        {/* Project URL */}
-                        <TextField
-                            required
-                            name='url'
-                            label="Project URL"
-                            value={ this.state.url }
-                            onChange={ this.handleInput }
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <LinkIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Box>
-
-                    <Box
+                    <Box sx={{ height: '20px' }} />
+                    
+                    <Typography
+                        variant='overline'
                         sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
+                            fontSize: '14px'
                         }}
                     >
-                        <Button
-                            variant="contained"
-                            fullWidth
-                        >
-                            Cancel
-                        </Button>
+                        Status
+                    </Typography>
+                    <ToggleButtonGroup
+                        exclusive
+                        name='status'
+                        value={ project.status }
+                        fullWidth
+                        onChange={ (event) => { setProject({ ...project, status: event.target.value }); } }
+                    >
+                        { form.statuses.map(
+                            (status, i) => {
+                                return (
+                                    <ToggleButton key={i} value={status.name}>{ status.value }</ToggleButton>
+                                )
+                            }
+                        ) }
+                    </ToggleButtonGroup>
 
-                        <Box width="25px"/>
-                        
-                        <Button
-                            variant="contained"
-                            fullWidth
-                            onClick={ this.createProject }
-                        >
-                            Create
-                        </Button>
-                    </Box>
+                    <Box sx={{ height: '30px' }} />
+
+                    {/* Project URL */}
+                    <TextField
+                        required
+                        name='url'
+                        label="Project URL"
+                        value={ project.url }
+                        onChange={ handleInput }
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LinkIcon />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                 </Box>
-            </Modal>
-        )
-    }
-}
 
-export default NewProjectDialog
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={ props.handleClose }
+                    >
+                        Cancel
+                    </Button>
+
+                    <Box width="25px"/>
+                    
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={ submit }
+                    >
+                        { submitLabel }
+                    </Button>
+                </Box>
+            </Box>
+        </Modal>
+    );
+}

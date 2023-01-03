@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react'
 
 import { getStatusColor } from '../theme/utils';
 
@@ -14,48 +14,16 @@ import LinkIcon from '@mui/icons-material/Link';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-export class ProjectCard extends React.Component {
+export default function ProjectCard(props) {
 
-    empty;
-    project;
+    useState()
+    
+    const empty = (props.empty === undefined ? false : props.empty);
 
-    constructor(props) {
-        super(props);
+    if (empty) {
 
-        this.empty = props.empty === undefined ? false : props.empty;
-        
-        if (!this.empty) this.project = props.project;
-    }
+        const color = 'rgb(0, 0, 0, .2)';
 
-    buildLanguagesEl() {
-
-        const languages = this.project.languages;
-        var languagesEl = [];
-
-        languages.forEach( 
-            (language) => {
-                languagesEl.push(
-                    <Chip 
-                        key={language}
-                        label={language.toUpperCase()} 
-                        // color="primary" //! Change this in theme
-                        variant='outlined'
-                        size="small"
-                        sx={{
-                            mr: 1,
-                            fontWeight: '600',
-                            color: 'secondary.main',
-                            borderColor: 'secondary.main'
-                        }}
-                    />
-                )
-            }
-        );
-
-        return languagesEl;
-    }
-
-    buildMainCard() {
         return (
             <Card
                 sx={{
@@ -64,9 +32,39 @@ export class ProjectCard extends React.Component {
                     p: 2,
                     width: '20%',
                     borderRadius: '10px',
-                    borderRight: `6px solid ${getStatusColor(this.project.status)}`,
+                    border: `2px dashed ${color}`, //? can we add to theme?
+                    backgroundColor: color,
+                    color: 'rgb(0, 0, 0, .4)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                }}
+                onClick={ props.onClick }
+            >
+                <AddIcon 
+                    sx={{
+                        fontSize: '60px',
+                        alignSelf: 'center',
+                    }} 
+                />
+            </Card>
+        );
+    }
+    else {
+
+        return (
+
+            <Card
+                sx={{
+                    my: 2,
+                    mx: 2.5,
+                    p: 2,
+                    width: '20%',
+                    borderRadius: '10px',
+                    borderRight: `6px solid ${getStatusColor(props.project.status)}`,
                     display: 'flex',
                     flexDirection: 'column',
+                    justifyContent: 'space-between'
                 }}
             >
 
@@ -80,10 +78,11 @@ export class ProjectCard extends React.Component {
                     <Typography
                         variant='h5'
                         sx={{
-                            fontWeight: '600'
+                            fontWeight: '600',
+                            alignSelf: 'center'
                         }}
                     >
-                        {this.project.name}
+                        { props.project.name }
                     </Typography>
 
                     {/* Actions */}
@@ -93,10 +92,16 @@ export class ProjectCard extends React.Component {
                             justifyContent: 'flex-end',
                         }}
                     >
-                        <IconButton>
-                            <EditOutlinedIcon fontSize='small' sx={{ alignSelf: 'center'}}/>
+                        <IconButton 
+                            onClick={ props.openEdit }
+                            disabled={ props.disableButtons ?? false }
+                        >
+                            <EditOutlinedIcon fontSize='small' />
                         </IconButton>
-                        <IconButton>
+                        <IconButton 
+                            onClick={ props.openDelete }
+                            disabled={ props.disableButtons ?? false }
+                        >
                             <DeleteOutlineIcon fontSize='small' />
                         </IconButton>
                     </Box>
@@ -105,7 +110,7 @@ export class ProjectCard extends React.Component {
 
                 <Box 
                     sx={{
-                        height: '10px'
+                        height: '25px'
                     }}
                 />
 
@@ -113,7 +118,7 @@ export class ProjectCard extends React.Component {
                 <Typography
                     variant='body1'
                 >
-                    {this.project.description}
+                    { props.project.description }
                 </Typography>
 
                 <Box 
@@ -129,7 +134,7 @@ export class ProjectCard extends React.Component {
                         flexWrap: 'wrap',
                     }}
                 >
-                    {this.buildLanguagesEl()}
+                    { buildLanguagesEl(props.project.languages) }
                 </Box>
 
                 <Box 
@@ -145,7 +150,7 @@ export class ProjectCard extends React.Component {
                         fontWeight: '600'
                     }}
                 >
-                    { this.project.type }
+                    { props.project.type }
                 </Typography>
 
                 <Box 
@@ -166,7 +171,7 @@ export class ProjectCard extends React.Component {
                         }}
                     />
                         <Link
-                            href={ this.project.url }
+                            href={ props.project.url }
                             underline="hover"
                             variant='caption'
                             sx={{
@@ -178,7 +183,7 @@ export class ProjectCard extends React.Component {
                             target="_blank"
                             rel="noopener"
                         >
-                            { this.project.url }
+                            { props.project.url }
                         </Link> 
                 </Box>
                 
@@ -187,50 +192,34 @@ export class ProjectCard extends React.Component {
                         height: '5px'
                     }}
                 />
-
-            </Card>
-        )
-    }
-
-    buildEmptyCard() {
-
-        const color = 'rgb(0, 0, 0, .2)';
-
-        return (
-            <Card
-                sx={{
-                    my: 2,
-                    mx: 2.5,
-                    p: 2,
-                    width: '20%',
-                    height: '20vh',
-                    borderRadius: '10px',
-                    border: `2px dashed ${color}`, //? can we add to theme?
-                    backgroundColor: color,
-                    color: 'rgb(0, 0, 0, .4)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                }}
-                onClick={ this.props.onClick }
-            >
-                <AddIcon 
-                    sx={{
-                        fontSize: '60px',
-                        alignSelf: 'center',
-                    }} 
-                />
             </Card>
         );
-    }
-
-    render() {
-
-        if (this.empty)
-            return this.buildEmptyCard();
-        else
-            return this.buildMainCard();
-    }
+    } 
 }
 
-export default ProjectCard
+function buildLanguagesEl(languages) {
+
+    var languagesEl = [];
+
+    languages.forEach( 
+        (language) => {
+            languagesEl.push(
+                <Chip 
+                    key={language}
+                    label={language.toUpperCase()} 
+                    // color="primary" //! Change this in theme
+                    variant='outlined'
+                    size="small"
+                    sx={{
+                        mr: 1,
+                        fontWeight: '600',
+                        color: 'secondary.main',
+                        borderColor: 'secondary.main'
+                    }}
+                />
+            )
+        }
+    );
+
+    return languagesEl;
+}
