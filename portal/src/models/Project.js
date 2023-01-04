@@ -1,12 +1,12 @@
 class Project {
 
-    id;
-    name;
-    description;
-    status;
-    type;
-    languages;
-    url;
+    id = null;
+    name = '';
+    description = '';
+    status = '';
+    type = '';
+    languages = [];
+    url = '';
 
     constructor(
         id,
@@ -21,7 +21,7 @@ class Project {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.languages = languages;
+        this.languages = Array.from(languages);
         this.type = type;
         this.status = status;
         this.url = url;

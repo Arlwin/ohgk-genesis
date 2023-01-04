@@ -1,6 +1,6 @@
 import React from 'react'
 
-import httpService from '../services/httpService';
+import HttpService from '../services/HttpService';
 
 import Box from '@mui/material/Box';
 
@@ -23,7 +23,7 @@ export class ProjectsPage extends React.Component {
 
     fetchProjects() {
 
-        httpService.get('/projects')
+        HttpService.get('/projects')
             .then(
                 (response) => {
 

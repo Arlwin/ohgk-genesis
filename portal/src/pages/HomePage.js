@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
+import { getProjectsFromLocal, setProjectsToLocal } from '../services/ProjectService'
 
 import Box from '@mui/material/Box';
 
 import NewProjectDialog from '../components/NewProjectDialog';
 
-import httpService from '../services/httpService';
+import HttpService from '../services/HttpService';
 import Project from '../models/Project';
 import ProjectCard from '../components/ProjectCard';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function HomePage() {
 
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState(getProjectsFromLocal());
     const [deleteProjectDialog, setDeleteProjectDialog] = useState({
         open: false,
         message: '',
@@ -24,7 +25,7 @@ export default function HomePage() {
     useEffect(
         () => {
 
-        httpService.get('/projects/status')
+        HttpService.get('/projects/status')
             .then(
                 (response) => {
 
@@ -55,7 +56,7 @@ export default function HomePage() {
     useEffect(
         () => {
 
-            httpService.get('/projects/types')
+            HttpService.get('/projects/types')
             .then(
                 (response) => {
 
@@ -90,7 +91,12 @@ export default function HomePage() {
         const nProjects = [...projects, project];
         setProjects(nProjects);
         setAddProjectDialog(false);
+
+        setProjectsToLocal(nProjects);
     };
+
+    //! TODO: Use Local storage
+    //! TODO: Add Validatioon
 
     const updateProject = (project) => {
 
@@ -102,6 +108,8 @@ export default function HomePage() {
 
         setProjects(nProjects);
         setEditProjectDialog(false);
+
+        setProjectsToLocal(nProjects);
     }
 
     const handleUpdateProject = (index) => {
@@ -123,6 +131,21 @@ export default function HomePage() {
                 projectId: index,
             })
         );
+    }
+
+    const deleteProject = (projectId) => {
+
+        const nProjects = projects.filter((project, i) => i !== deleteProjectDialog.projectId);
+
+        setProjects(nProjects);
+        setDeleteProjectDialog(deleteProjectDialog => ({
+            ...deleteProjectDialog,
+            open: false,
+            message: '',
+            projectId: null,
+        }));
+        
+        setProjectsToLocal(nProjects);
     }
     
     return (
@@ -159,15 +182,17 @@ export default function HomePage() {
                 title = { deleteProjectDialog.message }
                 message = 'Are you sure you want to delete this project?'
                 action = { deleteProjectDialog.action }
-                confirm = { () => { 
-                    setProjects(projects => projects.filter((project, i) => i !== deleteProjectDialog.projectId)) 
-                    setDeleteProjectDialog(deleteProjectDialog => ({
-                        ...deleteProjectDialog,
-                        open: false,
-                        message: '',
-                        projectId: null,
-                    }))
-                } }
+                // confirm = { () => { 
+                //     setProjects(projects => projects.filter((project, i) => i !== deleteProjectDialog.projectId))
+                //     setProjectsToLocal(nProjects);
+                //     setDeleteProjectDialog(deleteProjectDialog => ({
+                //         ...deleteProjectDialog,
+                //         open: false,
+                //         message: '',
+                //         projectId: null,
+                //     }))
+                // } }
+                confirm = { () => deleteProject(deleteProjectDialog.projectId) }
             />
 
             <ProjectCard 

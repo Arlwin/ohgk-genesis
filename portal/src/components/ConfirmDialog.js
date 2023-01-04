@@ -62,6 +62,7 @@ export default function ConfirmDialog(props) {
                     <Button
                         fullWidth
                         variant='contained'
+                        onClick={ props.handleClose }
                     >
                         Cancel
                     </Button>

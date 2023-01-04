@@ -5,7 +5,7 @@ import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import httpService from '../services/httpService';
+import HttpService from '../services/HttpService';
 
 const EMPTY_ERROR = "This field is required."
 const INCORRECT_CREDENTIALS_ERROR = "Username / Password is incorrect."
@@ -35,7 +35,7 @@ export class LoginDialog extends React.Component {
 
     login() {
 
-        httpService.get(
+        HttpService.get(
             '/users/login',
             {
                 auth: {

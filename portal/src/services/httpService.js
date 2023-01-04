@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const httpService = axios.create({
+const HttpService = axios.create({
 
     baseURL: 'http://localhost:8080/api',
 });
 
-export default httpService;
+export default HttpService;
