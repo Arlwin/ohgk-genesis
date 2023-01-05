@@ -16,6 +16,7 @@ permissions:
 
 env:
   AWS_REGION: us-west-2
+  DEPLOY_BUCKET: ohgk-genesis-frontend-bucket
 
 jobs:
   build:
@@ -66,5 +67,4 @@ jobs:
       - name: Upload to S3
         run: |
 
-          ls
-          ls artifact
+          aws s3 sync ./ s3://${DEPLOY_BUCKET} 
