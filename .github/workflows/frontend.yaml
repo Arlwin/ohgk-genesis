@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'portal/**'
-      - '.github/**'
 
   workflow_dispatch:
 

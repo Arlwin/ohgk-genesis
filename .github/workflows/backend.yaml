@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'api/**'
-      - '.github/**'
 
   workflow_dispatch:
 
@@ -52,6 +51,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: backend
+          path: api/
 
       - name: Build Image
         working-directory: api
