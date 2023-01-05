@@ -61,9 +61,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: frontend
+          path: artifact
 
       - name: Upload to S3
         run: |
 
           ls
-          ls frontend
+          ls artifact
