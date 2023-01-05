@@ -155,15 +155,18 @@ export default function ProjectCard(props) {
                 {/* Project Description */}
                 <Typography
                     variant='body1'
+                    sx={{
+                        height: '100px'
+                    }}
                 >
                     { props.project.description }
                 </Typography>
 
-                <Box 
+                {/* <Box 
                     sx={{
-                        height: '30px'
+                        height: '5px'
                     }}
-                />
+                /> */}
 
                 {/* Project Languages */}
                 <Box
@@ -191,41 +194,14 @@ export default function ProjectCard(props) {
                     { props.project.type }
                 </Typography>
 
-                <Box 
+                {/* <Box 
                     sx={{
                         height: '10px'
                     }}
-                />
+                /> */}
 
                 {/* Project Url */}
                 { urlEl }
-                {/* <Box
-                    sx={{
-                        display: 'flex',
-                    }}
-                >
-                    <LinkIcon 
-                        sx={{
-                            mr: 2
-                        }}
-                    />
-                        <Link
-                            href={ props.project.url }
-                            underline="hover"
-                            variant='caption'
-                            sx={{
-                                alignSelf: 'center',
-                                fontSize: '12px',
-                                fontStyle: 'italic',
-                                pt: .2, // bruh
-                            }}
-                            target="_blank"
-                            rel="noopener"
-                        >
-                            { props.project.url }
-                        </Link> 
-                </Box> */}
-                
                 <Box 
                     sx={{
                         height: '5px'

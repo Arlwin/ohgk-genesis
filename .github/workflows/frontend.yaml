@@ -1,0 +1,22 @@
+name: Front End
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'portal/**'
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Application
+        run: |
+
+          echo "test"

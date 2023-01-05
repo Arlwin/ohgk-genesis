@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getProjectsFromLocal, setProjectsToLocal } from '../services/ProjectService'
 
 import Box from '@mui/material/Box';
+import Snackbar from '@mui/material/Snackbar';
 
 import NewProjectDialog from '../components/NewProjectDialog';
 
@@ -20,6 +21,10 @@ export default function HomePage() {
         action: 'Delete',
     });
     const [addProjectDialog, setAddProjectDialog] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+    })
 
     const [projectStatuses, setProjectStatuses] = useState([]);
     useEffect(
@@ -92,6 +97,11 @@ export default function HomePage() {
         setAddProjectDialog(false);
 
         setProjectsToLocal(nProjects);
+
+        setSnackbar({
+            open: true,
+            message: 'Project Successfully Created'
+        });
     };
 
     const updateProject = (project) => {
@@ -106,6 +116,11 @@ export default function HomePage() {
         setEditProjectDialog(false);
 
         setProjectsToLocal(nProjects);
+
+        setSnackbar({
+            open: true,
+            message: 'Project Successfully Updated'
+        });
     }
 
     const handleUpdateProject = (index) => {
@@ -142,6 +157,11 @@ export default function HomePage() {
         }));
         
         setProjectsToLocal(nProjects);
+
+        setSnackbar({
+            open: true,
+            message: 'Project Successfully Deleted'
+        });
     }
     
     return (
@@ -151,7 +171,8 @@ export default function HomePage() {
                 display: 'flex',
                 flexWrap: 'wrap',
             }}
-        >
+        >   
+            {/* Dialogs */}
             <NewProjectDialog
                 key = "newProjectDialog"
                 open = { addProjectDialog }
@@ -178,17 +199,15 @@ export default function HomePage() {
                 title = { deleteProjectDialog.message }
                 message = 'Are you sure you want to delete this project?'
                 action = { deleteProjectDialog.action }
-                // confirm = { () => { 
-                //     setProjects(projects => projects.filter((project, i) => i !== deleteProjectDialog.projectId))
-                //     setProjectsToLocal(nProjects);
-                //     setDeleteProjectDialog(deleteProjectDialog => ({
-                //         ...deleteProjectDialog,
-                //         open: false,
-                //         message: '',
-                //         projectId: null,
-                //     }))
-                // } }
                 confirm = { () => deleteProject(deleteProjectDialog.projectId) }
+            />
+
+            {/* Snackbars */}
+            <Snackbar 
+                open = { snackbar.open }
+                autoHideDuration = { 5000 }
+                onClose = {() => { setSnackbar(snackbar => ({...snackbar, open: false})) }}
+                message = { snackbar.message }
             />
 
             <ProjectCard 
