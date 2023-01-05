@@ -1,4 +1,3 @@
-
 export function getProjectsFromLocal() {
 
     const projectsKey = 'projects';

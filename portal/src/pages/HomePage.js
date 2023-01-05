@@ -55,7 +55,6 @@ export default function HomePage() {
     const [projectTypesMap, setProjectTypesMap] = useState({});
     useEffect(
         () => {
-
             HttpService.get('/projects/types')
             .then(
                 (response) => {
@@ -94,9 +93,6 @@ export default function HomePage() {
 
         setProjectsToLocal(nProjects);
     };
-
-    //! TODO: Use Local storage
-    //! TODO: Add Validatioon
 
     const updateProject = (project) => {
 

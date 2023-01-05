@@ -18,6 +18,8 @@ import Chip from '@mui/material/Chip';
 
 import LinkIcon from '@mui/icons-material/Link';
 
+//! TODO: Add Validation
+
 export default function NewProjectDialog(props) {
 
     const initState = {
@@ -28,12 +30,57 @@ export default function NewProjectDialog(props) {
         url: '',
     }
 
+    const initValidation = {
+
+        name: null,
+        description: null,
+        languages: null,
+    }
+
     const [project, setProject] = useState(initState);
     const [form, setForm] = useState({
         language: '',
         types: [],
         statuses: []
     });
+    const [validations, setValidations] = useState({
+        ...initValidation,
+        valid: false,
+    });
+
+    // Validations
+    useEffect(
+        () => {
+
+            let nValidations = {...initValidation};
+            let valid = true;
+
+            // Name
+            if (project.name.trim() === '') {
+
+                nValidations['name'] = 'Name cannot be empty';
+                valid = false;
+            } 
+
+            // Description
+            if (project.description.trim() === '') {
+
+                nValidations['description'] = 'Description cannot be empty';
+                valid = false;
+            } 
+
+            // Languages
+            if (project.languages.size <= 0) {
+
+                nValidations['languages'] = 'Must have at least one language';
+                valid = false;
+            } 
+
+            nValidations['valid'] = valid;
+            setValidations(nValidations);
+        },
+        [project]
+    );
 
     // Type
     useEffect(
@@ -206,6 +253,8 @@ export default function NewProjectDialog(props) {
                         label="Project Name"
                         value={ project.name }
                         onChange={ handleInput }
+                        error= { validations.name !== null }
+                        helperText={ validations.name }
                     />
 
                     <Box sx={{ height: '30px' }} />
@@ -220,6 +269,8 @@ export default function NewProjectDialog(props) {
                         maxRows={6}
                         value={ project.description }
                         onChange={ handleInput }
+                        error= { validations.description !== null }
+                        helperText={ validations.description }
                     />
 
                     <Box sx={{ height: '30px' }} />
@@ -249,6 +300,8 @@ export default function NewProjectDialog(props) {
                                     }
                             )
                         }}
+                        error= { validations.languages !== null }
+                        helperText={ validations.languages }
                     />
 
                     <Box sx={{ height: '30px' }} />
@@ -339,6 +392,7 @@ export default function NewProjectDialog(props) {
                         variant="contained"
                         fullWidth
                         onClick={ submit }
+                        disabled={ !validations.valid }
                     >
                         { submitLabel }
                     </Button>

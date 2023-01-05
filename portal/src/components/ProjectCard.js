@@ -52,6 +52,44 @@ export default function ProjectCard(props) {
     }
     else {
 
+        const urlEl = 
+        (props.project.url === null || props.project.url.trim() === '')
+        ? (
+            <Typography
+                variant='caption'
+            >
+                No URL Provided
+            </Typography>
+        )
+        : (
+            <Box
+                sx={{
+                    display: 'flex',
+                }}
+            >
+                <LinkIcon 
+                    sx={{
+                        mr: 2
+                    }}
+                />
+                    <Link
+                        href={ props.project.url }
+                        underline="hover"
+                        variant='caption'
+                        sx={{
+                            alignSelf: 'center',
+                            fontSize: '10px',
+                            fontStyle: 'italic',
+                            pt: .2, // bruh
+                        }}
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        { props.project.url }
+                    </Link> 
+            </Box>
+        );
+
         return (
 
             <Card
@@ -160,7 +198,8 @@ export default function ProjectCard(props) {
                 />
 
                 {/* Project Url */}
-                <Box
+                { urlEl }
+                {/* <Box
                     sx={{
                         display: 'flex',
                     }}
@@ -185,7 +224,7 @@ export default function ProjectCard(props) {
                         >
                             { props.project.url }
                         </Link> 
-                </Box>
+                </Box> */}
                 
                 <Box 
                     sx={{

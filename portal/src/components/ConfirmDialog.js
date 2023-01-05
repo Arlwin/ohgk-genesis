@@ -32,7 +32,7 @@ export default function ConfirmDialog(props) {
                     }}
                 >
                     <Typography 
-                        variant="h4"
+                        variant="h5"
                         sx={{
                             fontWeight: '600',
                             alignSelf: 'center'
