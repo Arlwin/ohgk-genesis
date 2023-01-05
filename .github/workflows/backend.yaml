@@ -54,6 +54,7 @@ jobs:
           name: backend
 
       - name: Build Image
+        working-directory: api
         run: |
 
           docker build -t api . 
