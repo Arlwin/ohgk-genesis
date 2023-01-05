@@ -9,14 +9,59 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-west-2
+
 jobs:
   build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Build Application
+        working-directory: ./portal
+        run: |
+
+          npm install
+          npm run build
+      
+      - name: Save Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend
+          path: portal/build/
+
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build Application
-        run: |
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name: GithubRole
+          role-skip-session-tagging: true
+          aws-region: ${{ env.AWS_REGION }}
 
-          echo "test"
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend
+
+      - name: Upload to S3
+        run: 
+
+          ls
+          ls frontend
