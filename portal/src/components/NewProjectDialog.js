@@ -30,13 +30,6 @@ export default function NewProjectDialog(props) {
         url: '',
     }
 
-    const initValidation = {
-
-        name: null,
-        description: null,
-        languages: null,
-    }
-
     const [project, setProject] = useState(initState);
     const [form, setForm] = useState({
         language: '',
@@ -44,7 +37,9 @@ export default function NewProjectDialog(props) {
         statuses: []
     });
     const [validations, setValidations] = useState({
-        ...initValidation,
+        name: null,
+        description: null,
+        languages: null,
         valid: false,
     });
 
@@ -52,7 +47,11 @@ export default function NewProjectDialog(props) {
     useEffect(
         () => {
 
-            let nValidations = {...initValidation};
+            let nValidations = {
+                name: null,
+                description: null,
+                languages: null,
+            };
             let valid = true;
 
             // Name
@@ -137,7 +136,7 @@ export default function NewProjectDialog(props) {
                 }
             }
         },
-        [props.project]
+        [props.project, props.edit]
     )
 
     const handleInput = (event) => {
