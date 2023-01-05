@@ -67,4 +67,4 @@ jobs:
       - name: Upload to S3
         run: |
 
-          aws s3 sync ./ s3://${DEPLOY_BUCKET} 
+          aws s3 sync artifact/ s3://${DEPLOY_BUCKET} 
