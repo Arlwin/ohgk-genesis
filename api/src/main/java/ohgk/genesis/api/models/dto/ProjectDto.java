@@ -78,6 +78,8 @@ public class ProjectDto {
     public Project toEntity() throws InvalidProjectException {
 
         // Valid Type
+        log.info(validTypes.toString());
+
         if (!validTypes.contains(this.type)) {
 
             throw InvalidProjectException.invalidFieldValue(

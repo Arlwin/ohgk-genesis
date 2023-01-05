@@ -29,6 +29,34 @@
     </tr>
 </table>
 
+## Guide
+### How to run API in Docker
+1. Modify `Dockerfile` file and add the following lines.
+
+    ```
+    COPY build/libs/api.jar /opt/app
+    ...
+    # Add these lines
+    ENV AWS_ACCESS_KEY_ID=<Put Access Key here>
+    ENV AWS_SECRET_ACCESS_KEY=<Put Secret Key here>
+    ENV AWS_REGION=us-west-2
+    #
+    ...
+    CMD ["java", "-jar", "/opt/app/api.jar"]
+    ```
+
+2. Build image by using the command (Run it inside the ./api folder).
+
+    ```
+    docker build -t api .
+    ```
+
+3. Run the image by using the command.
+
+    ```
+    docker run -it --rm -p 8080:8080 api
+    ```
+
 ## RoadMap
 - [x] Create Wireframe
 - [x] Define Data / Create Datastore

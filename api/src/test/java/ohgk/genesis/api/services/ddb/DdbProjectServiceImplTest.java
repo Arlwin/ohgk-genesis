@@ -1,13 +1,10 @@
 package ohgk.genesis.api.services.ddb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -22,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import lombok.extern.slf4j.Slf4j;
 import ohgk.genesis.api.config.SystemConfig;
 import ohgk.genesis.api.entities.Project;
 import ohgk.genesis.api.enums.ProjectStatusEnum;
@@ -35,9 +31,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.BeanTableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.GetItemEnhancedRequest;
 
-@Slf4j
 @SpringBootTest
 public class DdbProjectServiceImplTest {
 
@@ -128,6 +122,7 @@ public class DdbProjectServiceImplTest {
         // Input
         ProjectDto input = ProjectDto.fromEntity(expectedProject);
         input.setId(null);
+        input.setType(ProjectTypeEnum.WEB_APP.toString());
 
         // Invoke
         ProjectDto result = projectService.createProject(input);
@@ -157,6 +152,7 @@ public class DdbProjectServiceImplTest {
 
         ProjectDto input = ProjectDto.fromEntity(expectedProject);
         input.setName(newName);
+        input.setType(ProjectTypeEnum.WEB_APP.toString());
 
         // Invoke
         ProjectDto result = projectService.updateProject(input);
